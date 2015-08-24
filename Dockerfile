@@ -1,9 +1,10 @@
 FROM lapax/nodejs-wiki:latest
 
-RUN npm install -g grunt grunt-cli grunt-contrib-coffee grunt-contrib-watch grunt-git-authors
-
-ADD . /linkdump/
+RUN npm install -g grunt-cli
+ADD package.json /linkdump/
 WORKDIR /linkdump/
+RUN npm install
+ADD . /linkdump/
 RUN npm install
 RUN grunt build
 RUN npm link
