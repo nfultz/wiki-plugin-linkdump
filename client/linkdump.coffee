@@ -5,17 +5,18 @@
  * https://github.com/nfultz/wiki-plugin-nfultz/blob/master/LICENSE.txt
 ###
 
+host = window.name
 
-emit = ($item, item) ->
-	$item.append """
+
+emit = (div, item) ->
+	page = div.parents '.page'
+	div.append """
 
 <hr>Linkdump internals</hr>
 
 <div id=marklet>
-  <a href="javascript:(function(){S=document.getSelection().toString();U=(S ? S + ' --- ' : '') + '['+location.href+' '+document.title+']'; B='http://%s/view/linkdump?';window.open(B+encodeURIComponent(U),'save-link','height=600,width=200,modal=yes,alwaysRaised=yes')})()"> LinkDump - %s</a> bookmarklet
+  <a href="javascript:(function(){S=document.getSelection().toString();U=(S ? S + ' --- ' : '') + '['+location.href+' '+document.title+']'; B='http://HOST/view/PAGE?';window.open(B+encodeURIComponent(U),'save-link','height=600,width=200,modal=yes,alwaysRaised=yes')})()"> PAGE - HOST</a> bookmarklet
 </div> 
-
-<script>  var x = document.getElementById("marklet"); x.innerHTML = x.innerHTML.replace(/%s/g, location.host); </script>
 
 <script>
   var text=decodeURIComponent(document.location.search.substring(1));
@@ -31,17 +32,19 @@ emit = ($item, item) ->
                    item: item, 
                    date: (new Date()).getTime()
                  };
-    var url = ["http:/", document.location.host, "page", "linkdump", "action"].join("/");
+    var url = ["http:/", "HOST", "page", "PAGE", "action"].join("/");
     var req = new XMLHttpRequest();
-    req.onload = function(x) {document.location.search=""};
+    req.onload = function(x) {
+        window.history.pushState("wiki","wiki","/view/PAGE");
+        wiki.doInternalLink("PAGE");  
+    };
     req.open("PUT", url, true);
     req.setRequestHeader("Content-type","application/x-www-form-urlencoded");
     req.send("action="+JSON.stringify(bundle));
-    alert("Saved!");
   }
  </script> Scriptfu
 
-"""
+""".replace(/HOST/g, host).replace(/PAGE/g, page[0].id)
 
 bind = (div, item) ->
 
